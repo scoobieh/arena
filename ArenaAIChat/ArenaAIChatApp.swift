@@ -35,7 +35,7 @@ struct ContentView: View {
 struct WebView: UIViewRepresentable {
     func makeUIView(context: Context) -> WKWebView {
         let config = WKWebViewConfiguration()
-        config.defaultWebConfiguration.dataStore = .default()
+        config.websiteDataStore = .default()
         config.preferences.javaScriptCanOpenWindowsAutomatically = false
         config.allowsInlineMediaPlayback = true
         config.mediaTypesRequiringUserActionForPlayback = []
@@ -50,7 +50,7 @@ struct WebView: UIViewRepresentable {
 
         // Load bundled index.html (offline-first — app works with no network for UI)
         if let url = Bundle.main.url(forResource: "index", withExtension: "html") {
-            webView.loadFileURL(url, allowing: url.deletingLastPathComponent())
+            webView.loadFileURL(url, allowingReadAccessTo: url.deletingLastPathComponent())
         } else if let url = URL(string: "https://example.com") {
             webView.load(URLRequest(url: url))
         }
@@ -82,7 +82,7 @@ struct WebView: UIViewRepresentable {
                 decisionHandler(.allow)
                 return
             }
-            if navigationAction.navigationType == .linkClicked,
+            if navigationAction.navigationType == .linkActivated,
                let scheme = url.scheme?.lowercased(),
                scheme == "http" || scheme == "https" {
                 UIApplication.shared.open(url)
